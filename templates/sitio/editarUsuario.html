@@ -1,0 +1,48 @@
+{% include 'sitio/head.html' %}
+
+    <div class="container">
+        <div class="row">
+          <div class="col-md-4">
+          </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <h5 class="card-header">Formulario de edicion</h5>
+                    <div class="card-body">
+                      <form action="/sitio/actualizar_user" method="post">
+                        <div class="mb-3">
+                          <label for="" class="form-label">ID</label>
+                          <input type="number" class="form-control" value="{{ usuario['ID'] }}" name="ID" placeholder="ID del usuario" readonly>
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">Nombre</label>
+                          <input type="text" class="form-control" value="{{ usuario['nombre'] }}" name="nombre" placeholder="Nombre del usuario" required>
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">Correo</label>
+                          <input type="text" class="form-control" value="{{ usuario['correo'] }}" name="correo" placeholder="Correo del usuario" required>
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">Contraseña</label>
+                          <input type="text" class="form-control" value="{{ usuario['contraseña'] }}" name="contraseña" required>
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">Tipo</label>
+                          <input type="text" class="form-control" value="{{ usuario['tipo'] }}" name="tipo" placeholder="Tipo de usuario" required>
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">Pedidos</label>
+                          <input type="text" class="form-control" value="{{ usuario['pedidos'] }}" name="pedidos" placeholder="# de Pedidos del usuario" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Actualizar</button>
+                      </form>
+                    </div>
+                </div>
+            </div>
+          <div class="col-md-4">
+          </div>
+        </div>
+        
+    </div>
+    
+
+{% include 'sitio/footer.html' %}
