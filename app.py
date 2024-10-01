@@ -26,6 +26,43 @@ def index():
     conexion.commit()
     return render_template('sitio/index.html', productos=productos)
 
+@app.route('/inicioSesion')
+def InicioSesion():
+    sql = "SELECT * FROM usuarios"
+    conexion = mysql.connection
+    cursor = conexion.cursor()
+    cursor.execute(sql)
+    usuarios = cursor.fetchall()
+    conexion.commit()
+    return render_template('sitio/iniciosesion.html', usuarios=usuarios)
+
+@app.route('/sitio/iniciarSesion', methods = ['POST'])
+def iniciarSesion():
+    correo = request.form['correo']
+    contraseña = request.form['contraseña']
+    sql = "SELECT * FROM usuarios WHERE correo = %s AND contraseña = %s"
+    datos = (correo,contraseña,)
+    conexion = mysql.connection
+    cursor = conexion.cursor()
+    cursor.execute(sql, datos)
+    usuario = cursor.fetchall()
+    conexion.commit()
+    if not usuario:
+        return redirect('/inicioSesion')
+    else:
+        return redirect('/inventario')
+
+#inventario
+@app.route('/inventario')
+def inventario():
+    sql = "SELECT * FROM productos "
+    conexion = mysql.connection
+    cursor = conexion.cursor()
+    cursor.execute(sql)
+    productos = cursor.fetchall()
+    conexion.commit()
+    return render_template('sitio/amd_inventario.html', productos=productos)
+
 
 @app.route('/sitio/guardar', methods = ['POST'])
 def guardar():
@@ -39,26 +76,26 @@ def guardar():
     cursor = conexion.cursor()
     cursor.execute(sql, datos)
     conexion.commit()
-    return redirect('/')
+    return redirect('/inventario')
 
-@app.route('/sitio/borrar/<int:codigo>')
+@app.route('/sitio/borrarInventario/<int:codigo>')
 def borrar(codigo):
     sql = "DELETE FROM productos WHERE id = %s"
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, (codigo,))
     conexion.commit()
-    return redirect('/')
+    return redirect('/inventario')
 
-@app.route('/sitio/editar/<int:codigo>')
-def ediatar(codigo):
+@app.route('/sitio/editarInventario/<int:codigo>')
+def ediatarInventario(codigo):
     sql = "SELECT * FROM productos WHERE id = %s"
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, (codigo,))
     producto = cursor.fetchone()
     conexion.commit()
-    return render_template('/sitio/editar.html', producto=producto)
+    return render_template('/sitio/editarInventario.html', producto=producto)
 
 @app.route('/sitio/actualizar', methods = ['POST'])
 def actualizar():
@@ -66,7 +103,6 @@ def actualizar():
     descripcion = request.form['descripcion']
     precio = request.form['precio']
     cantidad = request.form['cantidad']
-    
     id = request.form['id']
     sql = "UPDATE productos set nombre= %s, descripcion= %s, precio=%s, cantidad= %s WHERE id= %s"
     datos = (nombre,descripcion, precio, cantidad, id)
@@ -74,7 +110,7 @@ def actualizar():
     cursor = conexion.cursor()
     cursor.execute(sql, datos)
     conexion.commit()
-    return redirect('/')
+    return redirect('/inventario')
 
 #usuarios
 

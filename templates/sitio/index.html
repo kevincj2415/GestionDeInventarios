@@ -1,67 +1,41 @@
-{% include 'sitio/head.html' %}
+{% include 'sitio/headIndex.html' %}
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <h5 class="card-header">Formulario de registro</h5>
-                    <div class="card-body">
-                      <form action="/sitio/guardar" method="post">
-                        <div class="mb-3">
-                          <label for="" class="form-label">Nombre</label>
-                          <input type="text" class="form-control" name="nombre" placeholder="Nombre del producto" required>
-                        </div>
-                        <div class="mb-3">
-                          <label for="" class="form-label">Descripcion</label>
-                          <input type="text" class="form-control" name="descripcion" placeholder="Descripcion del producto" required>
-                        </div>
-                        <div class="mb-3">
-                          <label for="" class="form-label">Precio</label>
-                          <input type="number" class="form-control" name="precio" placeholder="precio del producto" required>
-                        </div>
-                        <div class="mb-3">
-                          <label for="" class="form-label">Cantidad</label>
-                          <input type="number" class="form-control" name="cantidad" placeholder="cantidad en stock" required>
-                        </div>
-                        <button type="submit" class="btn btn-success">Guardar</button>
-                      </form>
-                    </div>
-                </div>
-            </div>
-            <!--==========!-->
-            <div class="col-md-8">
-                <table class="table">
-                    <thead>
-                      <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Nombre</th>
-                        <th scope="col">Descripcion</th>
-                        <th scope="col">Precio</th>
-                        <th scope="col">Cantidad</th>
-                        <th scope="col">Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for producto in productos %}
-                      <tr>
-                        <th scope="row">{{ producto['id'] }}</th>
-                        <td>{{ producto['nombre'] }}</th>
-                        <td>{{ producto['descripcion'] }}</td>
-                        <td>{{ producto['precio'] }}</td>
-                        <td>{{ producto['cantidad'] }}</td>
-                        <td>
-                          <a href= "/sitio/editar/{{ producto['id'] }}" class="btn btn-success">Editar </a>
-                          <a href= "/sitio/borrar/{{ producto['id'] }}" class="btn btn-success">Borrar </a>
-                        </td>
-                      </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
+        <!-- Navigation -->
+      <nav class="navbar">
+        <a href="#">Inicio</a>
+        <a href="#">Características</a>
+        <a href="#">Servicios</a>
+        <a href="#">Contacto</a>
+      </nav>
 
-            </div>
-        </div>
-        
-    </div>
+      <!-- Main Content -->
+      <section class="main-content">
+          <h2>¿Qué ofrecemos?</h2>
+          <div class="d-flex flex-wrap justify-content-center">
+              <div class="card">
+                  <i class="fas fa-box"></i>
+                  <h3>Control de Inventario</h3>
+                  <p>Gestión rápida y precisa de tu inventario, con actualizaciones en tiempo real.</p>
+              </div>
+              <div class="card">
+                  <i class="fas fa-chart-line"></i>
+                  <h3>Reportes Analíticos</h3>
+                  <p>Obtén informes detallados para tomar decisiones basadas en datos.</p>
+              </div>
+              <div class="card">
+                  <i class="fas fa-users"></i>
+                  <h3>Gestión de Usuarios</h3>
+                  <p>Administra tu equipo y asigna roles para una gestión eficiente.</p>
+              </div>
+          </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="cta-section">
+          <h2>¡Comienza a mejorar tu inventario hoy!</h2>
+          <button onclick="location.href='#'">Registrarse Ahora</button>
+          <button onclick="location.href='/inicioSesion'">Iniciar Sesión</button>
+      </section>
     
 
-{% include 'sitio/footer.html' %}
+{% include 'sitio/footerIndex.html' %}

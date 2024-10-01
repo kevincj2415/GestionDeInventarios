@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #FBFEF9; /* Fondo claro */
+            color: #191923; /* Texto oscuro */
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #F39237, #BF1363); /* Gradiente Naranja - Magenta */
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 3rem;
+            font-weight: bold;
+        }
+        .header p {
+            margin-top: 5px;
+            font-size: 1.2rem;
+        }
+
+        /* Navigation */
+        .navbar {
+            display: flex;
+            justify-content: center;
+            padding: 15px;
+            background-color: #0E79B2; /* Azul */
+        }
+        .navbar a {
+            margin: 0 15px;
+            color: #FBFEF9; /* Fondo claro */
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        .navbar a:hover {
+            color: #BF1363; /* Magenta */
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            background-color: #FBFEF9; /* Fondo claro */
+        }
+        .main-content h2 {
+            color: #F39237; /* Naranja */
+            margin-bottom: 30px;
+        }
+        .card {
+            background-color: #FFF;
+            border-radius: 15px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 15px;
+            width: 300px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 5px solid #0E79B2; /* Detalle de borde azul */
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .card i {
+            font-size: 3rem;
+            color: #BF1363; /* Magenta */
+            margin-bottom: 10px;
+        }
+        .card h3 {
+            color: #191923; /* Texto oscuro */
+            margin: 10px 0;
+        }
+        .card p {
+            color: #777;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, #0E79B2, #191923); /* Gradiente Azul - Fondo Oscuro */
+            padding: 40px;
+            text-align: center;
+            color: white;
+            margin: 30px 0;
+        }
+        .cta-section h2 {
+            margin-bottom: 20px;
+        }
+        .cta-section button {
+            background-color: #F39237; /* Naranja */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .cta-section button:hover {
+            background-color: #BF1363; /* Magenta */
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #191923; /* Fondo oscuro */
+            padding: 20px;
+            text-align: center;
+            color: #FBFEF9; /* Texto claro */
+        }
+        .footer a {
+            color: #0E79B2; /* Azul */
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+        .footer a:hover {
+            color: #F39237; /* Naranja */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header class="header">
+        <h1>Bienvenido a Inventario Fácil</h1>
+        <p>El sistema más intuitivo y eficiente para la gestión de tu inventario</p>
+    </header>

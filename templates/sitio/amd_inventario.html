@@ -1,0 +1,67 @@
+{% include 'sitio/head.html' %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <h5 class="card-header">Formulario de registro</h5>
+                    <div class="card-body">
+                      <form action="/sitio/guardar" method="post">
+                        <div class="mb-3">
+                          <label for="" class="form-label">Nombre</label>
+                          <input type="text" class="form-control" name="nombre" placeholder="Nombre del producto" required>
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">Descripcion</label>
+                          <input type="text" class="form-control" name="descripcion" placeholder="Descripcion del producto" required>
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">Precio</label>
+                          <input type="float" class="form-control" name="precio" placeholder="precio del producto" required>
+                        </div>
+                        <div class="mb-3">
+                          <label for="" class="form-label">Cantidad</label>
+                          <input type="number" class="form-control" name="cantidad" placeholder="cantidad en stock" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                      </form>
+                    </div>
+                </div>
+            </div>
+            <!--==========!-->
+            <div class="col-md-8">
+                <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Descripcion</th>
+                        <th scope="col">Precio</th>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for producto in productos %}
+                      <tr>
+                        <th scope="row">{{ producto['id'] }}</th>
+                        <td>{{ producto['nombre'] }}</th>
+                        <td>{{ producto['descripcion'] }}</td>
+                        <td>{{ producto['precio'] }}</td>
+                        <td>{{ producto['cantidad'] }}</td>
+                        <td>
+                          <a href= "/sitio/editarInventario/{{ producto['id'] }}" class="btn btn-success">Editar </a>
+                          <a href= "/sitio/borrarInventario/{{ producto['id'] }}" class="btn btn-success">Borrar </a>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+
+            </div>
+        </div>
+        
+    </div>
+    
+
+{% include 'sitio/footer.html' %}
