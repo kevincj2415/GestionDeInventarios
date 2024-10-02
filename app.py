@@ -37,9 +37,25 @@ def InicioSesion():
     return render_template('sitio/iniciosesion.html', usuarios=usuarios)
 
 @app.route('/registrarUsuario')
-def registrarUsuario():
+def registroUsuario():
     return render_template('sitio/RegistroUsuario.html')
 
+
+@app.route('/sitio/registrarUsuario', methods = ['POST'])
+def registrarUsuario():
+    nombre = request.form['nombre']
+    correo = request.form['correo']
+    contraseña = request.form['contraseña']
+    tipo = request.form['tipo']
+    pedidos = request.form['pedidos']
+    sql = "INSERT INTO usuarios(nombre,correo,contraseña,tipo,pedidos) VALUES (%s,%s,%s,%s,%s)"
+    datos = (nombre,correo,contraseña,tipo,pedidos)
+    conexion = mysql.connection
+    cursor = conexion.cursor()
+    cursor.execute(sql, datos)
+    conexion.commit()
+    return redirect('/inicioSesion')
+    
 @app.route('/sitio/iniciarSesion', methods = ['POST'])
 def iniciarSesion():
     correo = request.form['correo']

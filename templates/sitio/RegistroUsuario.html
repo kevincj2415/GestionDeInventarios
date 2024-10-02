@@ -82,20 +82,20 @@
 <body>
     <div class="register-container">
         <h2>Registro de Usuario</h2>
-        <form>
-            <input type="text" class="form-control" placeholder="Nombre Completo" required>
-            <input type="email" class="form-control" placeholder="Correo Electrónico" required>
-            <input type="password" class="form-control" placeholder="Contraseña" required>
+        <form action="/sitio/registrarUsuario" method="post">
+            <input type="text" class="form-control" name="nombre" placeholder="Nombre Completo" required>
+            <input type="email" class="form-control" name="correo" placeholder="Correo Electrónico" required>
+            <input type="password" class="form-control" name="contraseña" placeholder="Contraseña" required>
             
             <!-- Tipo de Usuario Dropdown -->
-            <select class="form-control" required>
+            <select class="form-control" name="tipo" required>
                 <option value="" disabled selected>Selecciona Tipo de Usuario</option>
                 <option value="cliente">Cliente</option>
                 <option value="admin">Administrador</option>
             </select>
             
             <!-- Campo de número de pedidos -->
-            <input type="number" class="form-control" placeholder="Número de Pedidos" required min="0">
+            <input type="number" class="form-control" name="pedidos" placeholder="Número de Pedidos" required min="0">
 
             <button type="submit" class="register-btn">Registrar</button>
         </form>
