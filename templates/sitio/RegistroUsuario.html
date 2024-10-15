@@ -85,7 +85,7 @@
         <form action="/sitio/registrarUsuario" method="post">
             <input type="text" class="form-control" name="nombre" placeholder="Nombre Completo" required>
             <input type="email" class="form-control" name="correo" placeholder="Correo Electrónico" required>
-            <input type="password" class="form-control" name="contraseña" placeholder="Contraseña" required>
+            <input type="text" class="form-control" name="contraseña" placeholder="Contraseña" required>
             
             <!-- Tipo de Usuario Dropdown -->
             <select class="form-control" name="tipo" required>
@@ -93,9 +93,6 @@
                 <option value="cliente">Cliente</option>
                 <option value="admin">Administrador</option>
             </select>
-            
-            <!-- Campo de número de pedidos -->
-            <input type="number" class="form-control" name="pedidos" placeholder="Número de Pedidos" required min="0">
 
             <button type="submit" class="register-btn">Registrar</button>
         </form>

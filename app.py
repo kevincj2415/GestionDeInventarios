@@ -1,6 +1,14 @@
-from flask import Flask, redirect, render_template, request
-from flask import *
+from flask import Flask, render_template, request, redirect, url_for, flash,session
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_user, current_user, logout_user, login_required
+from flask_mail import Mail, Message
+from flask_migrate import Migrate
 from flask_mysqldb import MySQL
+from werkzeug.security import generate_password_hash, check_password_hash
+from Usuario import Usuario
+import pymongo
+import datetime
+secionIniciada = False
 
 
 
@@ -15,6 +23,14 @@ app.config['MYSQL_DB'] = 'gestion_inventarios'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql.init_app(app)
+
+@app.route('/contraseñaErrada')
+def contraseñaErrada():
+    return render_template('sitio/contraseñaErrada.html')
+
+@app.route('/correoErrado')
+def correoErrado():
+    return render_template('sitio/correoErrado.html')
 
 @app.route('/')
 def index():
@@ -47,9 +63,12 @@ def registrarUsuario():
     correo = request.form['correo']
     contraseña = request.form['contraseña']
     tipo = request.form['tipo']
-    pedidos = request.form['pedidos']
-    sql = "INSERT INTO usuarios(nombre,correo,contraseña,tipo,pedidos) VALUES (%s,%s,%s,%s,%s)"
-    datos = (nombre,correo,contraseña,tipo,pedidos)
+    pedidos = 0
+    usuario = {'nombre':nombre, 'correo':correo, 'contraseña':contraseña, 'tipo':tipo, 'pedidos':pedidos}
+    usuario = Usuario(usuario)
+    usuario.set_password(contraseña)
+    sql = "INSERT INTO usuarios (nombre, correo, contraseña, tipo, pedidos) VALUES (%s, %s, %s, %s, %s)"
+    datos = (nombre, correo, usuario.contraseña, tipo, pedidos)
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, datos)
@@ -58,18 +77,32 @@ def registrarUsuario():
     
 @app.route('/sitio/iniciarSesion', methods = ['POST'])
 def iniciarSesion():
-    correo = request.form['correo']
-    contraseña = request.form['contraseña']
-    sql = "SELECT * FROM usuarios WHERE correo = %s AND contraseña = %s"
-    datos = (correo,contraseña,)
+    global secionIniciada
+    correo = request.form['email']
+    contraseña = request.form['password']
+    
+    # Consulta a la base de datos
+    sql = "SELECT * FROM usuarios WHERE correo = %s"
+    datos = (correo,)
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, datos)
-    usuario = cursor.fetchone()
-    conexion.commit()
-    if not usuario:
-        return redirect('/inicioSesion')
+    user = cursor.fetchone()
+    
+    # Verificar si el usuario fue encontrado
+    if user is None:
+        return redirect('/correoErrado')
+
+    # Crear objeto Usuario
+    usuario = Usuario(user)
+    print(usuario.contraseña)
+    
+    # Verificar si la contraseña es correcta
+    if not usuario.check_password(contraseña):
+        return redirect('/contraseñaErrada')
     else:
+    # Si la contraseña es correcta, iniciar sesión
+        secionIniciada = True
         return redirect('/inventario')
 
 #inventario
