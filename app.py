@@ -185,8 +185,11 @@ def actualizar_user():
     tipo = request.form['tipo']
     pedidos = request.form['pedidos']
     id = request.form['ID']
+    usuario = {'nombre':nombre, 'correo':correo, 'contraseña':contraseña, 'tipo':tipo, 'pedidos':pedidos}
+    usuario = Usuario(usuario)
+    usuario.set_password(contraseña)
     sql = "UPDATE usuarios set nombre= %s, correo=%s,contraseña=%s,tipo=%s,pedidos=%s WHERE ID= %s"
-    datos = (nombre, correo,contraseña,tipo,pedidos, id)
+    datos = (nombre, correo,usuario.contraseña,tipo,pedidos, id)
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, datos)
@@ -219,8 +222,11 @@ def guardarUsuario():
     contraseña = request.form['contraseña']
     tipo = request.form['tipo']
     pedidos = request.form['pedidos']
+    usuario = {'nombre':nombre, 'correo':correo, 'contraseña':contraseña, 'tipo':tipo, 'pedidos':pedidos}
+    usuario = Usuario(usuario)
+    usuario.set_password(contraseña)
     sql = "INSERT INTO usuarios(nombre, correo,contraseña,tipo,pedidos) VALUES (%s,%s,%s,%s,%s)"
-    datos = (nombre, correo,contraseña,tipo,pedidos)
+    datos = (nombre, correo,usuario.contraseña,tipo,pedidos)
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, datos)
