@@ -10,12 +10,13 @@ from pymongo import MongoClient
 import datetime
 import mysql.connector
 import datetime
-status = {#'secionIniciada' : False,
+status = {'secionIniciada' : False,
     'nombre' : "",
     "correo" : "",
     "tipo" : "",
     'pedidos' : 0,
-    'idUsuario' : 25,
+    'idUsuario' : 0,
+    'idOrga' : "",
     }
 
 app = Flask(__name__)
@@ -37,6 +38,13 @@ mysql.init_app(app)
 @app.route('/contraseñaErrada')
 def contraseñaErrada():
     return render_template('sitio/contraseñaErrada.html')
+
+@app.route('/inicio')
+def inicio():
+    if status['secionIniciada']:
+        return redirect('/inventario')
+    else:
+        return render_template('sitio/inicioSesion.html', status=status)
 
 @app.route('/correoErrado')
 def correoErrado():
@@ -105,7 +113,6 @@ def iniciarSesion():
 
     # Crear objeto Usuario
     usuario = Usuario(user)
-    print(usuario.contraseña)
     
     # Verificar si la contraseña es correcta
     if not usuario.check_password(contraseña):
@@ -118,13 +125,18 @@ def iniciarSesion():
         status['correo'] = usuario.correo
         status['tipo'] = usuario.tipo
         status['pedidos'] = usuario.pedidos
-        
+        com = app.db.Comunidad.find_one({'idCreador': status['idUsuario']})
+        if com != None:
+            status['idOrga'] = com['ido']
+        else:
+            status['idOrga'] = 'Error'
+        print(status['idOrga'])
         return redirect('/inventario')
 
 #inventario
 @app.route('/inventario')
 def inventario():
-    productos = [publicacion for publicacion in app.db.productos.find({"creadorId": status['idUsuario']})]
+    productos = [producto for producto in app.db.productos.find({"creadorId": status['idUsuario']})]
     """sql = "SELECT * FROM productos "
     conexion = mysql.connection
     cursor = conexion.cursor()
@@ -165,12 +177,14 @@ def borrar(codigo):
 
 @app.route('/sitio/editarInventario/<int:codigo>')
 def ediatarInventario(codigo):
-    sql = "SELECT * FROM productos WHERE id = %s"
+    """sql = "SELECT * FROM productos WHERE id = %s"
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, (codigo,))
     producto = cursor.fetchone()
-    conexion.commit()
+    conexion.commit()"""
+    idp = str(codigo)
+    producto =  app.db.productos.find_one({"idp": idp})
     return render_template('/sitio/editarInventario.html', producto=producto)
 
 @app.route('/sitio/actualizar', methods = ['POST'])
@@ -180,24 +194,29 @@ def actualizar():
     precio = request.form['precio']
     cantidad = request.form['cantidad']
     id = request.form['id']
-    sql = "UPDATE productos set nombre= %s, descripcion= %s, precio=%s, cantidad= %s WHERE id= %s"
+    producto = {'nombre': nombre,'descripcion': descripcion,'precio': precio,'cantidad': cantidad,'creadorId': status['idUsuario']}
+    """sql = "UPDATE productos set nombre= %s, descripcion= %s, precio=%s, cantidad= %s WHERE id= %s"
     datos = (nombre,descripcion, precio, cantidad, id)
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, datos)
-    conexion.commit()
+    conexion.commit()"""
+    app.db.productos.update_one({'idp': id}, {'$set': producto})
     return redirect('/inventario')
 
 #usuarios
 
 @app.route('/usuario')
 def usuarios():
-    sql = "SELECT * FROM usuarios "
+    global status
+    """sql = "SELECT * FROM usuarios "
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql)
     usuarios = cursor.fetchall()
-    conexion.commit()
+    conexion.commit()"""
+    comunidad = app.db.Comunidad.find_one({'idCreador': status['idUsuario']})
+    usuarios = [usuario for usuario in comunidad['integrantes']]
     return render_template('/sitio/amd_usuario.html', usuarios = usuarios)
 
 @app.route('/sitio/actualizar_user', methods = ['POST'])
@@ -206,119 +225,178 @@ def actualizar_user():
     correo = request.form['correo']
     contraseña = request.form['contraseña']
     tipo = request.form['tipo']
-    pedidos = request.form['pedidos']
-    id = request.form['ID']
-    usuario = {'nombre':nombre, 'correo':correo, 'contraseña':contraseña, 'tipo':tipo, 'pedidos':pedidos}
+    idu = request.form['idu']
+    usuario = {'idu':idu,'nombre':nombre, 'correo':correo, 'contraseña':contraseña, 'tipo':tipo}
     usuario = Usuario(usuario)
     usuario.set_password(contraseña)
-    sql = "UPDATE usuarios set nombre= %s, correo=%s,contraseña=%s,tipo=%s,pedidos=%s WHERE ID= %s"
+    user = {'idu':idu,'nombre':nombre, 'correo':correo, 'contraseña':usuario.contraseña, 'tipo':tipo}
+    """sql = "UPDATE usuarios set nombre= %s, correo=%s,contraseña=%s,tipo=%s,pedidos=%s WHERE ID= %s"
     datos = (nombre, correo,usuario.contraseña,tipo,pedidos, id)
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, datos)
-    conexion.commit()
+    conexion.commit()"""
+    comunidad = app.db.Comunidad.find_one({'idCreador': status['idUsuario']})
+    usuarios = [usuario for usuario in comunidad['integrantes']]
+    idu = str(idu)
+    for usuariol in usuarios:
+        if usuariol['idu'] == idu:
+            usuarios.remove(usuariol)
+            usuarios.append(user)
+            app.db.Comunidad.update_one({'idCreador': status['idUsuario'] }, {'$set': {'integrantes': usuarios}})   
+        else:
+            print ("Error")
     return redirect('/usuario')
 
 @app.route('/sitio/borrarUsuario/<int:codigo>')
 def borrarUsusario(codigo):
-    sql = "DELETE FROM usuarios WHERE ID = %s"
+    global status
+    """sql = "DELETE FROM usuarios WHERE ID = %s"
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, (codigo,))
-    conexion.commit()
+    conexion.commit()"""
+    comunidad = app.db.Comunidad.find_one({'idCreador': status['idUsuario']})
+    usuarios = [usuario for usuario in comunidad['integrantes']]
+    idu = str(codigo)
+    for usuariol in usuarios:
+        if usuariol['idu'] == idu:
+            usuarios.remove(usuariol)
+            app.db.Comunidad.update_one({'idCreador': status['idUsuario'] }, {'$set': {'integrantes': usuarios}})   
+        else:
+            print ("Error")
     return redirect('/usuario')
 
 @app.route('/sitio/editarUsuario/<int:id>')
 def editarUsuario(id):
-    sql = "SELECT * FROM usuarios WHERE ID = %s"
+    global status
+    """sql = "SELECT * FROM usuarios WHERE ID = %s"
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, (id,))
     usuario = cursor.fetchone()
-    conexion.commit()
+    conexion.commit()"""
+    comunidad = app.db.Comunidad.find_one({'idCreador': status['idUsuario']})
+    usuarios = [usuario for usuario in comunidad['integrantes']]
+    idu = str(id)
+    usuario = {}
+    for usuariol in usuarios:
+        if usuariol['idu'] == idu:
+            usuario = usuariol
+        else:
+            usuario = None
     return render_template('/sitio/editarUsuario.html', usuario = usuario)
 
 @app.route('/sitio/guardarUsuario', methods = ['POST'])
 def guardarUsuario():
+    idu = request.form['idu']
     nombre = request.form['nombre']
     correo = request.form['correo']
     contraseña = request.form['contraseña']
     tipo = request.form['tipo']
-    pedidos = request.form['pedidos']
-    usuario = {'nombre':nombre, 'correo':correo, 'contraseña':contraseña, 'tipo':tipo, 'pedidos':pedidos}
+    usuario = {'idu':idu,'nombre':nombre, 'correo':correo, 'contraseña':contraseña, 'tipo':tipo}
     usuario = Usuario(usuario)
     usuario.set_password(contraseña)
-    sql = "INSERT INTO usuarios(nombre, correo,contraseña,tipo,pedidos) VALUES (%s,%s,%s,%s,%s)"
+    user = usuario = {'idu':idu,'nombre':nombre, 'correo':correo, 'contraseña':usuario.contraseña, 'tipo':tipo}
+    comunidad = app.db.Comunidad.find_one({'idCreador': status['idUsuario']})
+    usuarios = [usuario for usuario in comunidad['integrantes']]
+    usuarios.append(user)
+    app.db.Comunidad.update_one({'idCreador': status['idUsuario'] }, {'$set': {'integrantes': usuarios}})
+    """sql = "INSERT INTO usuarios(nombre, correo,contraseña,tipo,pedidos) VALUES (%s,%s,%s,%s,%s)"
     datos = (nombre, correo,usuario.contraseña,tipo,pedidos)
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, datos)
-    conexion.commit()
+    conexion.commit()"""
+    
     return redirect('/usuario')
 
 #Proveedores 
 
 @app.route('/proveedores')
 def proveedores():
-    sql = "SELECT * FROM proveedores "
+    global status
+    """sql = "SELECT * FROM proveedores "
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql)
     proveedores = cursor.fetchall()
-    conexion.commit()
+    conexion.commit()"""
+    proveedores = [proveedor for proveedor in app.db.proveedores.find({'ido': status['idOrga']})]
     return render_template('/sitio/amd_proveedores.html', proveedores = proveedores)
 
 @app.route('/sitio/actualizar_proveedor', methods = ['POST'])
 def actualizar_proveedor():
+    global status
     nombre = request.form['nombre']
     contacto = request.form['contacto']
     telefono = request.form['telefono']
     email = request.form['email']
-    id = request.form['id']
-    sql = "UPDATE proveedores set nombre= %s, contacto=%s,telefono=%s,email=%s WHERE id= %s"
+    idp = request.form['idp']
+    """sql = "UPDATE proveedores set nombre= %s, contacto=%s,telefono=%s,email=%s WHERE id= %s"
     datos = (nombre, contacto,telefono,email,id)
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, datos)
-    conexion.commit()
+    conexion.commit()"""
+    app.db.proveedores.update_one({'idp': idp }, {'$set':{'idp':idp, 'ido':status['idOrga'],'nombre':nombre, 'contacto':contacto, 'telefono':telefono, 'email':email}})
     return redirect('/proveedores')
 
 @app.route('/sitio/borrarProveedor/<int:codigo>')
 def borrarProveedor(codigo):
-    sql = "DELETE FROM proveedores WHERE id = %s"
+    """sql = "DELETE FROM proveedores WHERE id = %s"
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, (codigo,))
-    conexion.commit()
+    conexion.commit()"""
+    idp = str(codigo)
+    app.db.proveedores.delete_one({'idp':idp}) 
     return redirect('/proveedores')
 
 @app.route('/sitio/editarProveedor/<int:id>')
 def editarProveedor(id):
-    sql = "SELECT * FROM proveedores WHERE id = %s"
+    global status
+    """sql = "SELECT * FROM proveedores WHERE id = %s"
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, (id,))
     proveedor = cursor.fetchone()
-    conexion.commit()
+    conexion.commit()"""
+    idp = str(id)
+    proveedor = app.db.proveedores.find_one({'idp':idp})
+    
     return render_template('/sitio/editarProveedor.html', proveedor = proveedor)
 
 @app.route('/sitio/guardarProveedor', methods = ['POST'])
 def guardarProveedor():
+    idp = request.form['idp']
     nombre = request.form['nombre']
     contacto = request.form['contacto']
     telefono = request.form['telefono']
     email = request.form['email']
-    sql = "INSERT INTO proveedores(nombre, contacto,telefono,email) VALUES (%s,%s,%s,%s)"
+    """sql = "INSERT INTO proveedores(nombre, contacto,telefono,email) VALUES (%s,%s,%s,%s)"
     datos = (nombre, contacto,telefono,email)
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, datos)
-    conexion.commit()
+    conexion.commit()"""
+    proveedor = {'idp':idp, 'ido':status['idOrga'], 'nombre':nombre,'contacto':contacto,'telefono':telefono,'email':email}
+    app.db.proveedores.insert_one(proveedor)
     return redirect('/proveedores')
 
 @app.route('/configuracion')
 def configuracion():
-    return render_template('/sitio/configuracion.html')
+    global status
+    return render_template('/sitio/configuracion.html', status=status)
+
+@app.route('/sitio/crearOrganizacion', methods = ['POST'])
+def CrearOrganizacion():
+    global status
+    nombre = request.form['nombre']
+    ido = request.form['ido']
+    organizacion = {'idCreador': status['idUsuario'],'ido': ido,'nombre':nombre, 'integrantes': []}
+    app.db.Comunidad.insert_one(organizacion)
+    return redirect('/usuario')
 
 if __name__ == '__main__':
     app.run(debug = True, port=5700)

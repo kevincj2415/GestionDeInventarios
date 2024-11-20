@@ -8,6 +8,10 @@
                     <div class="card-body">
                       <form action="/sitio/guardarUsuario" method="post">
                         <div class="mb-3">
+                          <label for="" class="form-label">Id</label>
+                          <input type="number" class="form-control" name="idu" placeholder="Id del usuario" required>
+                        </div>
+                        <div class="mb-3">
                           <label for="" class="form-label">Nombre</label>
                           <input type="text" class="form-control" name="nombre" placeholder="Nombre del usuario" required>
                         </div>
@@ -22,10 +26,6 @@
                         <div class="mb-3">
                           <label for="" class="form-label">Tipo</label>
                           <input type="text" class="form-control" name="tipo" placeholder="tipo de usuario" required>
-                        </div>
-                        <div class="mb-3">
-                          <label for="" class="form-label">Pedidos</label>
-                          <input type="number" class="form-control" name="pedidos" placeholder="Numero de Pedidos del usuario" required>
                         </div>
                         <button type="submit" class="btn btn-success">Guardar</button>
                       </form>
@@ -42,7 +42,6 @@
                         <th scope="col">Correo</th>
                         <th scope="col">Contraseña</th>
                         <th scope="col">tipo</th>
-                        <th scope="col">pedidos</th>
                         <th scope="col">Acciones</th>
                         
                       </tr>
@@ -50,15 +49,14 @@
                     <tbody>
                       {% for usuario in usuarios %}
                       <tr>
-                        <th scope="row">{{ usuario['ID'] }}</th>
-                        <td>{{ usuario['nombre'] }}</td>
+                        <th scope="row">{{ usuario['idu'] }}</th>
+                        <th scope="row">{{ usuario['nombre'] }}</th>
                         <td>{{ usuario['correo'] }}</td>
                         <td>**********</td>
                         <td>{{ usuario['tipo'] }}</td>
-                        <td>{{ usuario['pedidos'] }}</td>
                         <td>
-                          <a href= "/sitio/editarUsuario/{{ usuario['ID'] }}" class="btn btn-success">Editar </a>
-                          <a href= "/sitio/borrarUsuario/{{ usuario['ID'] }}" class="btn btn-success">Borrar </a>
+                          <a href= "/sitio/editarUsuario/{{ usuario['idu'] }}" class="btn btn-success">Editar </a>
+                          <a href= "/sitio/borrarUsuario/{{ usuario['idu'] }}" class="btn btn-success">Borrar </a>
                         </td>
                       </tr>
                       {% endfor %}

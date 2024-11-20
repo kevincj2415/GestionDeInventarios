@@ -86,13 +86,8 @@
             <input type="text" class="form-control" name="nombre" placeholder="Nombre Completo" required>
             <input type="email" class="form-control" name="correo" placeholder="Correo Electrónico" required>
             <input type="text" class="form-control" name="contraseña" placeholder="Contraseña" required>
-            
+            <input type="hidden" class="form-control" name="tipo" value = 'Cliente' placeholder="tipo" >
             <!-- Tipo de Usuario Dropdown -->
-            <select class="form-control" name="tipo" required>
-                <option value="" disabled selected>Selecciona Tipo de Usuario</option>
-                <option value="cliente">Cliente</option>
-                <option value="admin">Administrador</option>
-            </select>
 
             <button type="submit" class="register-btn">Registrar</button>
         </form>

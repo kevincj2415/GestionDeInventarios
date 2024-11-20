@@ -140,19 +140,24 @@
                 </form>
             </section>
             <section class="settings-section">
-                <h2>Opciones de Reabastecimiento</h2>
-                
-                <button popovertarget="crear-organizacion" class="btn-save">Crear organizacion</button>
+                <h2>Opciones de Organizacion</h2>
+                {%if status['idOrga'] == ""%}
+                    <button popovertarget="crear-organizacion" class="btn-save">Crear organizacion</button>
 
-                <div id="crear-organizacion" popover>
-                    <form>
-                        <label for="nombre-organizacion">Nombre de la Organización</label>
-                        <input type="text" id="nombre-organizacion" placeholder="Ingrese el nombre de la organización">
-                        
-                        <button type="submit" class="btn-save">Crear</button>
-                    </form>
-                </div>
-
+                    <div id="crear-organizacion" popover>
+                        <form action="/sitio/crearOrganizacion" method="post">
+                            <label for="nombre-organizacion">Nombre de la Organización</label>
+                            <input type="text" id="nombre-organizacion" name="nombre" placeholder="Ingrese el nombre de la organización">
+                            <label for="nombre-organizacion">codigo de la Organización</label>
+                            <input type="text" id="codigo-organizacion" name="ido" placeholder="Ingrese un codigo para la organización">
+                            <button type="submit" class="btn-save">Crear</button>
+                        </form>
+                    </div>
+                {%else%}
+                    <div id="crear-organizacion">
+                            <input type="text" placeholder="{{status['idOrga']}}" readonly>
+                    </div>
+                {%endif%}
             </section>
         </main>
     </div>

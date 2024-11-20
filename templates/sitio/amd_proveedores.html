@@ -8,6 +8,10 @@
                     <div class="card-body">
                       <form action="/sitio/guardarProveedor" method="post">
                         <div class="mb-3">
+                          <label for="" class="form-label">ID</label>
+                          <input type="text" class="form-control" name="idp" placeholder="id del proveedor" required>
+                        </div>
+                        <div class="mb-3">
                           <label for="" class="form-label">Nombre</label>
                           <input type="text" class="form-control" name="nombre" placeholder="Nombre del proveedor" required>
                         </div>
@@ -44,14 +48,14 @@
                     <tbody>
                       {% for proveedor in proveedores %}
                       <tr>
-                        <th scope="row">{{ proveedor['id'] }}</th>
+                        <th scope="row">{{ proveedor['idp'] }}</th>
                         <td>{{ proveedor['nombre'] }}</th>
                         <td>{{ proveedor['contacto'] }}</th>
                         <td>{{ proveedor['telefono'] }}</td>
                         <td>{{ proveedor['email'] }}</td>
                         <td>
-                          <a href= "/sitio/editarProveedor/{{ proveedor['id'] }}" class="btn btn-success">Editar </a>
-                          <a href= "/sitio/borrarProveedor/{{ proveedor['id'] }}" class="btn btn-success">Borrar </a>
+                          <a href= "/sitio/editarProveedor/{{ proveedor['idp'] }}" class="btn btn-success">Editar </a>
+                          <a href= "/sitio/borrarProveedor/{{ proveedor['idp'] }}" class="btn btn-success">Borrar </a>
                         </td>
                       </tr>
                       {% endfor %}

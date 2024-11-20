@@ -11,7 +11,7 @@
                       <form action="/sitio/actualizar_user" method="post">
                         <div class="mb-3">
                           <label for="" class="form-label">ID</label>
-                          <input type="number" class="form-control" value="{{ usuario['ID'] }}" name="ID" placeholder="ID del usuario" readonly>
+                          <input type="number" class="form-control" value="{{ usuario['idu'] }}" name="idu" placeholder="ID del usuario" readonly>
                         </div>
                         <div class="mb-3">
                           <label for="" class="form-label">Nombre</label>
@@ -23,15 +23,11 @@
                         </div>
                         <div class="mb-3">
                           <label for="" class="form-label">Contraseña</label>
-                          <input type="text" class="form-control" value="************" name="contraseña" required>
+                          <input type="text" class="form-control" value="************" name="contraseña" readonly>
                         </div>
                         <div class="mb-3">
                           <label for="" class="form-label">Tipo</label>
                           <input type="text" class="form-control" value="{{ usuario['tipo'] }}" name="tipo" placeholder="Tipo de usuario" required>
-                        </div>
-                        <div class="mb-3">
-                          <label for="" class="form-label">Pedidos</label>
-                          <input type="text" class="form-control" value="{{ usuario['pedidos'] }}" name="pedidos" placeholder="# de Pedidos del usuario" required>
                         </div>
                         <button type="submit" class="btn btn-success">Actualizar</button>
                       </form>
