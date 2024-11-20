@@ -6,13 +6,23 @@ from flask_migrate import Migrate
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 from Usuario import Usuario
-import pymongo
+from pymongo import MongoClient
 import datetime
-secionIniciada = False
-
-
+import mysql.connector
+import datetime
+status = {#'secionIniciada' : False,
+    'nombre' : "",
+    "correo" : "",
+    "tipo" : "",
+    'pedidos' : 0,
+    'idUsuario' : 25,
+    }
 
 app = Flask(__name__)
+
+cliente = MongoClient("mongodb+srv://kevincj2415:e2BhakVv76vBMD7f@cluster0.hb2dv.mongodb.net/")
+app.db = cliente.gestion_inventairo
+
 
 mysql = MySQL()
 app.config['MYSQL_HOST'] = 'localhost'
@@ -77,7 +87,7 @@ def registrarUsuario():
     
 @app.route('/sitio/iniciarSesion', methods = ['POST'])
 def iniciarSesion():
-    global secionIniciada
+    global status
     correo = request.form['email']
     contraseña = request.form['password']
     
@@ -102,42 +112,55 @@ def iniciarSesion():
         return redirect('/contraseñaErrada')
     else:
     # Si la contraseña es correcta, iniciar sesión
-        secionIniciada = True
+        status['secionIniciada'] = True
+        status['idUsuario'] = user['ID']
+        status['nombre'] = usuario.nombre
+        status['correo'] = usuario.correo
+        status['tipo'] = usuario.tipo
+        status['pedidos'] = usuario.pedidos
+        
         return redirect('/inventario')
 
 #inventario
 @app.route('/inventario')
 def inventario():
-    sql = "SELECT * FROM productos "
+    productos = [publicacion for publicacion in app.db.productos.find({"creadorId": status['idUsuario']})]
+    """sql = "SELECT * FROM productos "
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql)
     productos = cursor.fetchall()
-    conexion.commit()
+    conexion.commit()"""
     return render_template('sitio/amd_inventario.html', productos=productos)
 
 
 @app.route('/sitio/guardar', methods = ['POST'])
 def guardar():
+    global status
+    idp = request.form['ID']
     nombre = request.form['nombre']
     descripcion = request.form['descripcion']
     precio = request.form['precio']
     cantidad = request.form['cantidad']
-    sql = "INSERT INTO productos(nombre,descripcion,precio,cantidad) VALUES (%s,%s,%s,%s)"
+    producto = {'idp':idp, 'nombre': nombre,'descripcion': descripcion,'precio': precio,'cantidad': cantidad,'creadorId': status['idUsuario']}
+    """sql = "INSERT INTO productos(nombre,descripcion,precio,cantidad) VALUES (%s,%s,%s,%s)"
     datos = (nombre,descripcion,precio,cantidad)
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, datos)
-    conexion.commit()
+    conexion.commit()"""
+    app.db.productos.insert_one(producto)
     return redirect('/inventario')
 
 @app.route('/sitio/borrarInventario/<int:codigo>')
 def borrar(codigo):
-    sql = "DELETE FROM productos WHERE id = %s"
+    """ sql = "DELETE FROM productos WHERE id = %s"
     conexion = mysql.connection
     cursor = conexion.cursor()
     cursor.execute(sql, (codigo,))
-    conexion.commit()
+    conexion.commit()"""
+    idp = str(codigo)
+    app.db.productos.delete_one({'idp': idp})
     return redirect('/inventario')
 
 @app.route('/sitio/editarInventario/<int:codigo>')
@@ -293,5 +316,9 @@ def guardarProveedor():
     conexion.commit()
     return redirect('/proveedores')
 
+@app.route('/configuracion')
+def configuracion():
+    return render_template('/sitio/configuracion.html')
+
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(debug = True, port=5700)

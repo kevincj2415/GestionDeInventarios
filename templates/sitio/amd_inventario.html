@@ -8,6 +8,10 @@
                     <div class="card-body">
                       <form action="/sitio/guardar" method="post">
                         <div class="mb-3">
+                          <label for="" class="form-label">ID</label>
+                          <input type="number" class="form-control" name="ID" placeholder="Id del producto" required>
+                        </div>
+                        <div class="mb-3">
                           <label for="" class="form-label">Nombre</label>
                           <input type="text" class="form-control" name="nombre" placeholder="Nombre del producto" required>
                         </div>
@@ -17,7 +21,7 @@
                         </div>
                         <div class="mb-3">
                           <label for="" class="form-label">Precio</label>
-                          <input type="float" class="form-control" name="precio" placeholder="precio del producto" required>
+                          <input type="number" class="form-control" name="precio" placeholder="precio del producto" required>
                         </div>
                         <div class="mb-3">
                           <label for="" class="form-label">Cantidad</label>
@@ -44,14 +48,14 @@
                     <tbody>
                       {% for producto in productos %}
                       <tr>
-                        <th scope="row">{{ producto['id'] }}</th>
+                        <th scope="row">{{ producto['idp'] }}</th>
                         <td>{{ producto['nombre'] }}</th>
                         <td>{{ producto['descripcion'] }}</td>
                         <td>{{ producto['precio'] }}</td>
                         <td>{{ producto['cantidad'] }}</td>
                         <td>
-                          <a href= "/sitio/editarInventario/{{ producto['id'] }}" class="btn btn-success">Editar </a>
-                          <a href= "/sitio/borrarInventario/{{ producto['id'] }}" class="btn btn-success">Borrar </a>
+                          <a href= "/sitio/editarInventario/{{ producto['idp'] }}" class="btn btn-success">Editar </a>
+                          <a href= "/sitio/borrarInventario/{{ producto['idp'] }}" class="btn btn-success">Borrar </a>
                         </td>
                       </tr>
                       {% endfor %}

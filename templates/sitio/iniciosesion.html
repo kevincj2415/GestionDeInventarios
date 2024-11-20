@@ -12,9 +12,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #FBFEF9; /* Fondo claro */
             font-family: 'Arial', sans-serif;
+            overflow: hidden; /* Asegura que no haya barras de desplazamiento */
         }
+
+        .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Hace que el video cubra toda la pantalla */
+            z-index: -1; /* Coloca el video detrás del contenido */
+        }
+        
+        
 
         .login-container {
             background: #FFFFFF;
@@ -23,6 +35,7 @@
             padding: 40px;
             max-width: 400px;
             width: 100%;
+            text-align: center;
         }
 
         .login-container h2 {
@@ -30,6 +43,68 @@
             text-align: center;
             margin-bottom: 20px;
         }
+
+        @keyframes gradient-animation {
+            0% {
+                background: linear-gradient(135deg, rgba(255, 126, 95, 0.8), rgba(254, 180, 123, 0.8));
+            }
+            50% {
+                background: linear-gradient(135deg, rgba(106, 17, 203, 0.8), rgba(37, 117, 252, 0.8));
+            }
+            100% {
+                background: linear-gradient(135deg, rgba(255, 126, 95, 0.8), rgba(254, 180, 123, 0.8));
+            }
+        }
+        
+        .login-container-principal {
+            animation: gradient-animation 5s ease infinite;
+            background-size: 400% 400%;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2); /* Más suave */
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            backdrop-filter: blur(5px); /* Borra un poco el fondo detrás del contenedor */
+            background-color: rgba(255, 255, 255, 0.4); /* Fondo con algo de transparencia */
+        }
+        
+        .login-container-principal h2 {
+            color: #FFFFFF;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .login-container-btn {
+            background: #ffffff;
+            border-radius: 25px; /* Bordes más redondeados */
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1); /* Sombra más sutil */
+            padding: 20px 40px; /* Menos espacio en los bordes */
+            max-width: 400px;
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: all 0.3s ease; /* Suaviza la transición */
+            font-size: 16px; /* Un tamaño de fuente moderado */
+            font-weight: bold; /* Resalta el texto */
+            color: #333; /* Color oscuro para el texto */
+            border: 2px solid #ddd; /* Borde suave */
+        }
+        
+        /* Efecto hover */
+        .login-container-btn:hover {
+            background: linear-gradient(135deg, #ff7e5f, #feb47b); /* Fondo degradado al pasar el cursor */
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2); /* Sombra más intensa */
+            transform: translateY(-5px); /* Desplazamiento hacia arriba para el efecto */
+            cursor: pointer; /* Cambiar el cursor al pasar sobre el botón */
+        }
+        
+        /* Efecto de foco (cuando el campo está activo) */
+        .login-container-btn:focus {
+            outline: none; /* Eliminar el borde predeterminado */
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); /* Sombra sutil al hacer foco */
+        }
+        
+
 
         .form-control {
             background-color: #FBFEF9; /* Fondo claro */
@@ -112,7 +187,34 @@
     </style>
 </head>
 <body>
-    <div class="login-container">
+
+    <video autoplay muted loop class="video-background">
+        <source src="https://cdn.pixabay.com/video/2023/11/19/189813-887078786_tiny.mp4" type="video/mp4">
+        <!-- Agrega más formatos si lo deseas -->
+    </video>
+    
+    <div class="login-container-principal">
+        <h2>Bienvenido</h2>
+        <div class="login-container-btn">
+            <button popovertarget="InicioSecionNormal" class="login-btn">Iniciar sesion como Cliente</button>
+        </div>
+        <div class="login-container-btn">
+            <button popovertarget="InicioSecionOrganizacion" class="login-btn">Iniciar sesion como miembro de una Organización</button>
+        </div>
+    </div>
+
+    <div id="InicioSecionOrganizacion" class="login-container" popover>
+        <h2>Iniciar Sesión organizacion</h2>
+        <form action="/sitio/iniciarSesionOrganizacion"  method="post">
+            <input type="email" class="form-control" name="email" placeholder="Usuario" required>
+            <input type="password" class="form-control" name="password" placeholder="Contraseña" required>
+            <button type="submit" class="btn btn-success">Ingresar</button>
+            <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+        </form>
+
+    </div>
+
+    <div id="InicioSecionNormal" class="login-container" popover>
         <h2>Iniciar Sesión</h2>
         <form action="/sitio/iniciarSesion"  method="post">
             <input type="email" class="form-control" name="email" placeholder="Correo Electrónico" required>
