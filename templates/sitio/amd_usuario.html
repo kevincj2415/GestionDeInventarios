@@ -1,6 +1,7 @@
 {% include 'sitio/head.html' %}
 
     <div class="container">
+      {%if status['tipo'] == 'Cliente'%}
         <div class="row">
             <div class="col-md-4">
                 <div class="card">
@@ -25,7 +26,7 @@
                         </div>
                         <div class="mb-3">
                           <label for="" class="form-label">Tipo</label>
-                          <input type="text" class="form-control" name="tipo" placeholder="tipo de usuario" required>
+                          <input type="text" class="form-control" name="tipo" value='Empleado' readonly>
                         </div>
                         <button type="submit" class="btn btn-success">Guardar</button>
                       </form>
@@ -50,9 +51,9 @@
                       {% for usuario in usuarios %}
                       <tr>
                         <th scope="row">{{ usuario['idu'] }}</th>
-                        <th scope="row">{{ usuario['nombre'] }}</th>
+                        <td>{{ usuario['nombre'] }}</th>
                         <td>{{ usuario['correo'] }}</td>
-                        <td>**********</td>
+                        <td>{{ usuario['contraseña']}}</td>
                         <td>{{ usuario['tipo'] }}</td>
                         <td>
                           <a href= "/sitio/editarUsuario/{{ usuario['idu'] }}" class="btn btn-success">Editar </a>
@@ -65,7 +66,31 @@
 
             </div>
         </div>
-        
+      {%else%}
+        <h2>Codigo de organizacion: {{status['idOrga']}}</h2>
+        <div class="col-md-8">
+          <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Correo</th>
+                  
+                </tr>
+              </thead>
+              <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                  <th scope="row">{{ usuario['idu'] }}</th>
+                  <td>{{ usuario['nombre'] }}</th>
+                  <td>{{ usuario['correo'] }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+        </div>
+      {%endif%}
     </div>
     
 

@@ -17,6 +17,7 @@ status = {'secionIniciada' : False,
     'pedidos' : 0,
     'idUsuario' : 0,
     'idOrga' : "",
+    'tipoUs' : ""
     }
 
 app = Flask(__name__)
@@ -129,20 +130,14 @@ def iniciarSesion():
         if com != None:
             status['idOrga'] = com['ido']
         else:
-            status['idOrga'] = 'Error'
+            status['idOrga'] = ''
         print(status['idOrga'])
         return redirect('/inventario')
 
 #inventario
 @app.route('/inventario')
 def inventario():
-    productos = [producto for producto in app.db.productos.find({"creadorId": status['idUsuario']})]
-    """sql = "SELECT * FROM productos "
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql)
-    productos = cursor.fetchall()
-    conexion.commit()"""
+    productos = [producto for producto in app.db.productos.find({"idOrga": status['idOrga']})]
     return render_template('sitio/amd_inventario.html', productos=productos)
 
 
@@ -154,35 +149,18 @@ def guardar():
     descripcion = request.form['descripcion']
     precio = request.form['precio']
     cantidad = request.form['cantidad']
-    producto = {'idp':idp, 'nombre': nombre,'descripcion': descripcion,'precio': precio,'cantidad': cantidad,'creadorId': status['idUsuario']}
-    """sql = "INSERT INTO productos(nombre,descripcion,precio,cantidad) VALUES (%s,%s,%s,%s)"
-    datos = (nombre,descripcion,precio,cantidad)
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql, datos)
-    conexion.commit()"""
+    producto = {'idp':idp,'idOrga':status['idOrga'], 'nombre': nombre,'descripcion': descripcion,'precio': precio,'cantidad': cantidad,'creadorId': status['idUsuario']}
     app.db.productos.insert_one(producto)
     return redirect('/inventario')
 
 @app.route('/sitio/borrarInventario/<int:codigo>')
 def borrar(codigo):
-    """ sql = "DELETE FROM productos WHERE id = %s"
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql, (codigo,))
-    conexion.commit()"""
     idp = str(codigo)
     app.db.productos.delete_one({'idp': idp})
     return redirect('/inventario')
 
 @app.route('/sitio/editarInventario/<int:codigo>')
 def ediatarInventario(codigo):
-    """sql = "SELECT * FROM productos WHERE id = %s"
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql, (codigo,))
-    producto = cursor.fetchone()
-    conexion.commit()"""
     idp = str(codigo)
     producto =  app.db.productos.find_one({"idp": idp})
     return render_template('/sitio/editarInventario.html', producto=producto)
@@ -195,12 +173,6 @@ def actualizar():
     cantidad = request.form['cantidad']
     id = request.form['id']
     producto = {'nombre': nombre,'descripcion': descripcion,'precio': precio,'cantidad': cantidad,'creadorId': status['idUsuario']}
-    """sql = "UPDATE productos set nombre= %s, descripcion= %s, precio=%s, cantidad= %s WHERE id= %s"
-    datos = (nombre,descripcion, precio, cantidad, id)
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql, datos)
-    conexion.commit()"""
     app.db.productos.update_one({'idp': id}, {'$set': producto})
     return redirect('/inventario')
 
@@ -209,82 +181,32 @@ def actualizar():
 @app.route('/usuario')
 def usuarios():
     global status
-    """sql = "SELECT * FROM usuarios "
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql)
-    usuarios = cursor.fetchall()
-    conexion.commit()"""
-    comunidad = app.db.Comunidad.find_one({'idCreador': status['idUsuario']})
-    usuarios = [usuario for usuario in comunidad['integrantes']]
-    return render_template('/sitio/amd_usuario.html', usuarios = usuarios)
+    usuarios = app.db.usuarios.find({'idOrga': status['idOrga']})
+    return render_template('/sitio/amd_usuario.html', usuarios = usuarios, status = status)
 
 @app.route('/sitio/actualizar_user', methods = ['POST'])
 def actualizar_user():
+    global status
     nombre = request.form['nombre']
     correo = request.form['correo']
     contraseña = request.form['contraseña']
     tipo = request.form['tipo']
     idu = request.form['idu']
-    usuario = {'idu':idu,'nombre':nombre, 'correo':correo, 'contraseña':contraseña, 'tipo':tipo}
-    usuario = Usuario(usuario)
-    usuario.set_password(contraseña)
-    user = {'idu':idu,'nombre':nombre, 'correo':correo, 'contraseña':usuario.contraseña, 'tipo':tipo}
-    """sql = "UPDATE usuarios set nombre= %s, correo=%s,contraseña=%s,tipo=%s,pedidos=%s WHERE ID= %s"
-    datos = (nombre, correo,usuario.contraseña,tipo,pedidos, id)
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql, datos)
-    conexion.commit()"""
-    comunidad = app.db.Comunidad.find_one({'idCreador': status['idUsuario']})
-    usuarios = [usuario for usuario in comunidad['integrantes']]
-    idu = str(idu)
-    for usuariol in usuarios:
-        if usuariol['idu'] == idu:
-            usuarios.remove(usuariol)
-            usuarios.append(user)
-            app.db.Comunidad.update_one({'idCreador': status['idUsuario'] }, {'$set': {'integrantes': usuarios}})   
-        else:
-            print ("Error")
+    app.db.usuarios.update_one({'idu': idu }, {'$set': {'idu':idu,'idOrga':status['idOrga'],'nombre':nombre, 'correo':correo, 'contraseña':contraseña, 'tipo':tipo}})
     return redirect('/usuario')
 
 @app.route('/sitio/borrarUsuario/<int:codigo>')
 def borrarUsusario(codigo):
     global status
-    """sql = "DELETE FROM usuarios WHERE ID = %s"
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql, (codigo,))
-    conexion.commit()"""
-    comunidad = app.db.Comunidad.find_one({'idCreador': status['idUsuario']})
-    usuarios = [usuario for usuario in comunidad['integrantes']]
     idu = str(codigo)
-    for usuariol in usuarios:
-        if usuariol['idu'] == idu:
-            usuarios.remove(usuariol)
-            app.db.Comunidad.update_one({'idCreador': status['idUsuario'] }, {'$set': {'integrantes': usuarios}})   
-        else:
-            print ("Error")
+    app.db.usuarios.delete_one({'idu': idu})
     return redirect('/usuario')
 
 @app.route('/sitio/editarUsuario/<int:id>')
 def editarUsuario(id):
     global status
-    """sql = "SELECT * FROM usuarios WHERE ID = %s"
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql, (id,))
-    usuario = cursor.fetchone()
-    conexion.commit()"""
-    comunidad = app.db.Comunidad.find_one({'idCreador': status['idUsuario']})
-    usuarios = [usuario for usuario in comunidad['integrantes']]
     idu = str(id)
-    usuario = {}
-    for usuariol in usuarios:
-        if usuariol['idu'] == idu:
-            usuario = usuariol
-        else:
-            usuario = None
+    usuario = app.db.usuarios.find_one({'idu': idu})
     return render_template('/sitio/editarUsuario.html', usuario = usuario)
 
 @app.route('/sitio/guardarUsuario', methods = ['POST'])
@@ -294,21 +216,8 @@ def guardarUsuario():
     correo = request.form['correo']
     contraseña = request.form['contraseña']
     tipo = request.form['tipo']
-    usuario = {'idu':idu,'nombre':nombre, 'correo':correo, 'contraseña':contraseña, 'tipo':tipo}
-    usuario = Usuario(usuario)
-    usuario.set_password(contraseña)
-    user = usuario = {'idu':idu,'nombre':nombre, 'correo':correo, 'contraseña':usuario.contraseña, 'tipo':tipo}
-    comunidad = app.db.Comunidad.find_one({'idCreador': status['idUsuario']})
-    usuarios = [usuario for usuario in comunidad['integrantes']]
-    usuarios.append(user)
-    app.db.Comunidad.update_one({'idCreador': status['idUsuario'] }, {'$set': {'integrantes': usuarios}})
-    """sql = "INSERT INTO usuarios(nombre, correo,contraseña,tipo,pedidos) VALUES (%s,%s,%s,%s,%s)"
-    datos = (nombre, correo,usuario.contraseña,tipo,pedidos)
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql, datos)
-    conexion.commit()"""
-    
+    usuario = {'idu':idu,'idOrga':status['idOrga'],'nombre':nombre, 'correo':correo, 'contraseña':contraseña, 'tipo':tipo}
+    app.db.usuarios.insert_one(usuario)
     return redirect('/usuario')
 
 #Proveedores 
@@ -316,12 +225,6 @@ def guardarUsuario():
 @app.route('/proveedores')
 def proveedores():
     global status
-    """sql = "SELECT * FROM proveedores "
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql)
-    proveedores = cursor.fetchall()
-    conexion.commit()"""
     proveedores = [proveedor for proveedor in app.db.proveedores.find({'ido': status['idOrga']})]
     return render_template('/sitio/amd_proveedores.html', proveedores = proveedores)
 
@@ -333,22 +236,11 @@ def actualizar_proveedor():
     telefono = request.form['telefono']
     email = request.form['email']
     idp = request.form['idp']
-    """sql = "UPDATE proveedores set nombre= %s, contacto=%s,telefono=%s,email=%s WHERE id= %s"
-    datos = (nombre, contacto,telefono,email,id)
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql, datos)
-    conexion.commit()"""
     app.db.proveedores.update_one({'idp': idp }, {'$set':{'idp':idp, 'ido':status['idOrga'],'nombre':nombre, 'contacto':contacto, 'telefono':telefono, 'email':email}})
     return redirect('/proveedores')
 
 @app.route('/sitio/borrarProveedor/<int:codigo>')
 def borrarProveedor(codigo):
-    """sql = "DELETE FROM proveedores WHERE id = %s"
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql, (codigo,))
-    conexion.commit()"""
     idp = str(codigo)
     app.db.proveedores.delete_one({'idp':idp}) 
     return redirect('/proveedores')
@@ -356,12 +248,6 @@ def borrarProveedor(codigo):
 @app.route('/sitio/editarProveedor/<int:id>')
 def editarProveedor(id):
     global status
-    """sql = "SELECT * FROM proveedores WHERE id = %s"
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql, (id,))
-    proveedor = cursor.fetchone()
-    conexion.commit()"""
     idp = str(id)
     proveedor = app.db.proveedores.find_one({'idp':idp})
     
@@ -374,12 +260,6 @@ def guardarProveedor():
     contacto = request.form['contacto']
     telefono = request.form['telefono']
     email = request.form['email']
-    """sql = "INSERT INTO proveedores(nombre, contacto,telefono,email) VALUES (%s,%s,%s,%s)"
-    datos = (nombre, contacto,telefono,email)
-    conexion = mysql.connection
-    cursor = conexion.cursor()
-    cursor.execute(sql, datos)
-    conexion.commit()"""
     proveedor = {'idp':idp, 'ido':status['idOrga'], 'nombre':nombre,'contacto':contacto,'telefono':telefono,'email':email}
     app.db.proveedores.insert_one(proveedor)
     return redirect('/proveedores')
@@ -394,9 +274,37 @@ def CrearOrganizacion():
     global status
     nombre = request.form['nombre']
     ido = request.form['ido']
-    organizacion = {'idCreador': status['idUsuario'],'ido': ido,'nombre':nombre, 'integrantes': []}
+    organizacion = {'idCreador': status['idUsuario'],'ido': ido,'nombre':nombre}
     app.db.Comunidad.insert_one(organizacion)
-    return redirect('/usuario')
+    status['idOrga'] = ido
+    return redirect('/configuracion')
 
+@app.route('/sitio/iniciarSesionOrganizacion', methods = ['POST'])
+def iniciarSesionOrganizacion():
+    global status
+    correo = request.form['email']
+    contraseña = request.form['password']
+    
+    # Consulta a la base de datos
+    user = app.db.usuarios.find_one({'correo': correo})
+    
+    # Verificar si el usuario fue encontrado
+    if user is None:
+        return redirect('/correoErrado')
+
+    
+    # Verificar si la contraseña es correcta
+    if user['contraseña']!= contraseña:
+        return redirect('/contraseñaErrada')
+    else:
+    # Si la contraseña es correcta, iniciar sesión
+        status['secionIniciada'] = True
+        status['idUsuario'] = user['idu']
+        status['nombre'] = user['nombre']
+        status['correo'] = user['correo']
+        status['tipo'] = user['tipo']
+        status['idOrga'] = user['idOrga']
+        return redirect('/inventario')
+    
 if __name__ == '__main__':
     app.run(debug = True, port=5700)

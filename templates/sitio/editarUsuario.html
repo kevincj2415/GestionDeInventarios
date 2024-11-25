@@ -23,11 +23,11 @@
                         </div>
                         <div class="mb-3">
                           <label for="" class="form-label">Contraseña</label>
-                          <input type="text" class="form-control" value="************" name="contraseña" readonly>
+                          <input type="text" class="form-control" value="{{usuario['contraseña']}}" name="contraseña" readonly>
                         </div>
                         <div class="mb-3">
                           <label for="" class="form-label">Tipo</label>
-                          <input type="text" class="form-control" value="{{ usuario['tipo'] }}" name="tipo" placeholder="Tipo de usuario" required>
+                          <input type="text" class="form-control" value="{{ usuario['tipo'] }}" name="tipo" placeholder="Tipo de usuario" readonly>
                         </div>
                         <button type="submit" class="btn btn-success">Actualizar</button>
                       </form>
