@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash,session
+from flask import Flask, jsonify, render_template, request, redirect, url_for, flash,session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from flask_mail import Mail, Message
@@ -10,6 +10,18 @@ from pymongo import MongoClient
 import datetime
 import mysql.connector
 import datetime
+import requests
+
+import secrets
+import string
+
+def generar_codigo_seguro(longitud=6):
+    caracteres = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(caracteres) for _ in range(longitud))
+
+PIXABAY_API_KEY = "47289007-1c84d3d414f613c857c6ded8f"
+BASE_URL = "https://api.pexels.com/v1/search"
+
 status = {'secionIniciada' : False,
     'nombre' : "",
     "correo" : "",
@@ -144,7 +156,13 @@ def inventario():
 @app.route('/sitio/guardar', methods = ['POST'])
 def guardar():
     global status
-    idp = request.form['ID']
+    idp = generar_codigo_seguro()
+    productos = app.db.productos.find()
+    for producto in productos:
+        if producto['idp'] == idp:
+            break
+        else:
+            idp = generar_codigo_seguro()
     nombre = request.form['nombre']
     descripcion = request.form['descripcion']
     precio = request.form['precio']
@@ -153,15 +171,15 @@ def guardar():
     app.db.productos.insert_one(producto)
     return redirect('/inventario')
 
-@app.route('/sitio/borrarInventario/<int:codigo>')
+@app.route('/sitio/borrarInventario/<codigo>')
 def borrar(codigo):
-    idp = str(codigo)
+    idp = codigo
     app.db.productos.delete_one({'idp': idp})
     return redirect('/inventario')
 
-@app.route('/sitio/editarInventario/<int:codigo>')
+@app.route('/sitio/editarInventario/<codigo>')
 def ediatarInventario(codigo):
-    idp = str(codigo)
+    idp = codigo
     producto =  app.db.productos.find_one({"idp": idp})
     return render_template('/sitio/editarInventario.html', producto=producto)
 
@@ -195,14 +213,14 @@ def actualizar_user():
     app.db.usuarios.update_one({'idu': idu }, {'$set': {'idu':idu,'idOrga':status['idOrga'],'nombre':nombre, 'correo':correo, 'contraseña':contraseña, 'tipo':tipo}})
     return redirect('/usuario')
 
-@app.route('/sitio/borrarUsuario/<int:codigo>')
+@app.route('/sitio/borrarUsuario/<codigo>')
 def borrarUsusario(codigo):
     global status
-    idu = str(codigo)
+    idu = codigo
     app.db.usuarios.delete_one({'idu': idu})
     return redirect('/usuario')
 
-@app.route('/sitio/editarUsuario/<int:id>')
+@app.route('/sitio/editarUsuario/<id>')
 def editarUsuario(id):
     global status
     idu = str(id)
@@ -211,7 +229,13 @@ def editarUsuario(id):
 
 @app.route('/sitio/guardarUsuario', methods = ['POST'])
 def guardarUsuario():
-    idu = request.form['idu']
+    idu = generar_codigo_seguro()
+    usuarios = app.db.usuarios.find()
+    for usuario in usuarios:
+        if usuario['idu'] == idu:
+            break
+        else:
+            idu = generar_codigo_seguro()
     nombre = request.form['nombre']
     correo = request.form['correo']
     contraseña = request.form['contraseña']
@@ -239,23 +263,29 @@ def actualizar_proveedor():
     app.db.proveedores.update_one({'idp': idp }, {'$set':{'idp':idp, 'ido':status['idOrga'],'nombre':nombre, 'contacto':contacto, 'telefono':telefono, 'email':email}})
     return redirect('/proveedores')
 
-@app.route('/sitio/borrarProveedor/<int:codigo>')
+@app.route('/sitio/borrarProveedor/<codigo>')
 def borrarProveedor(codigo):
-    idp = str(codigo)
+    idp = codigo
     app.db.proveedores.delete_one({'idp':idp}) 
     return redirect('/proveedores')
 
-@app.route('/sitio/editarProveedor/<int:id>')
+@app.route('/sitio/editarProveedor/<id>')
 def editarProveedor(id):
     global status
-    idp = str(id)
+    idp = id
     proveedor = app.db.proveedores.find_one({'idp':idp})
     
     return render_template('/sitio/editarProveedor.html', proveedor = proveedor)
 
 @app.route('/sitio/guardarProveedor', methods = ['POST'])
 def guardarProveedor():
-    idp = request.form['idp']
+    idp = generar_codigo_seguro()
+    proveedores = app.db.productos.find()
+    for proveedor in proveedores:
+        if proveedor['idp'] == idp:
+            break
+        else:
+            idp = generar_codigo_seguro()
     nombre = request.form['nombre']
     contacto = request.form['contacto']
     telefono = request.form['telefono']
@@ -274,7 +304,8 @@ def CrearOrganizacion():
     global status
     nombre = request.form['nombre']
     ido = request.form['ido']
-    organizacion = {'idCreador': status['idUsuario'],'ido': ido,'nombre':nombre}
+    descripcion = request.form['descripcion']
+    organizacion = {'idCreador': status['idUsuario'],'ido': ido,'nombre':nombre, 'descripcion':descripcion}
     app.db.Comunidad.insert_one(organizacion)
     status['idOrga'] = ido
     return redirect('/configuracion')
@@ -306,5 +337,81 @@ def iniciarSesionOrganizacion():
         status['idOrga'] = user['idOrga']
         return redirect('/inventario')
     
+    
+    
+@app.route('/sitio/cerrarSesion')
+def cerrarSesion():
+    global status
+    status = {'secionIniciada' : False,
+    'nombre' : "",
+    "correo" : "",
+    "tipo" : "",
+    'pedidos' : 0,
+    'idUsuario' : 0,
+    'idOrga' : "",
+    'tipoUs' : ""
+    }
+    return render_template("sitio/index.html")
+    
+def buscar_imagenes(query):
+    url = f"https://pixabay.com/api/?key={PIXABAY_API_KEY}&q={query}&image_type=photo&per_page=10"
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        data = response.json()
+        hits = data.get("hits", [])
+        if hits:  # Verifica si hay resultados en "hits"
+            return hits[0]  # Devuelve solo el primer resultado como diccionario
+        else:
+            print("No se encontraron imágenes para la consulta.")
+            return "No se encontraron imágenes para la consulta."  # Devuelve un diccionario vacío si no hay resultados
+    else:
+        print(f"Error al conectar con la API: {response.status_code}")
+        return "Error al conectar con la API:"
+
+
+@app.route('/tienda')
+def tienda():
+    tiendas = app.db.Comunidad.find({})
+    print(buscar_imagenes('roseria'))
+    return render_template("sitio/tienda.html", tiendas=tiendas )
+
+def elegir_imagen(palabra):
+    datos = buscar_imagenes(palabra)
+    if datos != "No se encontraron imágenes para la consulta.":
+        img = datos['webformatURL']
+        return img
+    elif datos == "Error al conectar con la API:":
+        return "https://via.placeholder.com/400x200"
+    else:
+        return "https://via.placeholder.com/400x200"  # Devuelve un placeholder si no hay resultados
+
+app.jinja_env.globals.update(elegir_imagen=elegir_imagen)
+
+@app.route('/productos/<id>')
+def productos(id):
+    productos = app.db.productos.find({'idOrga': id})
+    return render_template("sitio/productos.html", productos=productos )
+    
+@app.route('/realizar_pedido', methods=['POST'])
+def realizar_pedido():
+    global status
+    data = request.get_json()  # Obtener los datos en formato JSON
+    productos = data.get('productos', [])
+    total = data.get('total', 0)
+
+    # Aquí puedes hacer lo que necesites con los datos del carrito (guardar en la base de datos, procesar el pago, etc.)
+    app.db.pedidos.insert_one(data)
+    app.db.pedidos.update_one({'id': data.get('id', ""), }, {'$set':{'idOrga': status['idOrga'], 'fecha': datetime.now()}})
+    for producto in productos:
+        idp = producto['id']
+        hl = app.db.productos.find_one({'idp':idp})
+        cantidad = int(hl['cantidad'])
+        guar = cantidad - producto['cantidad']
+        app.db.productos.update_one({'idp': idp, }, {'$set':{'cantidad':str(guar)}} )
+
+    return jsonify({"message": "Pedido realizado correctamente", "status": "success"}), 200
+
+
 if __name__ == '__main__':
     app.run(debug = True, port=5700)

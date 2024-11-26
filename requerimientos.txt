@@ -6,3 +6,4 @@ flask_login
 mysql-connector
 flask_sqlalchemy
 flask_mail
+requests
