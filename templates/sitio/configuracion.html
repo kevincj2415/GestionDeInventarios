@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html> 
 <html lang="en">
 <head>
@@ -103,12 +101,12 @@
         <main>
             <section class="settings-section">
                 <h2>Umbrales de Inventario</h2>
-                <form>
+                <form action="/guardar/stockInventario" method="post">
                     <label for="min-threshold">Nivel Mínimo de Stock</label>
-                    <input type="number" id="min-threshold" placeholder="Ingrese el nivel mínimo">
+                    <input type="number" id="min-threshold" name="stockMin" Value="{{configuracion['stockMin']}}">
                     
                     <label for="max-threshold">Nivel Máximo de Stock</label>
-                    <input type="number" id="max-threshold" placeholder="Ingrese el nivel máximo">
+                    <input type="number" id="max-threshold" name="stockMax" Value="{{configuracion['stockMax']}}">
                     
                     <button type="submit" class="btn-save">Guardar</button>
                 </form>
@@ -116,12 +114,12 @@
 
             <section class="settings-section">
                 <h2>Notificaciones</h2>
-                <form>
+                <form  action="/guardar/notificacion" method="post">
                     <label for="email">Correo Electrónico para Notificaciones</label>
-                    <input type="email" id="email" placeholder="Ingrese el correo electrónico">
+                    <input type="email" name="email" Value="{{configuracion['email']}}">
                     
                     <label for="sms">Número de Teléfono (SMS)</label>
-                    <input type="tel" id="sms" placeholder="Ingrese el número de teléfono">
+                    <input type="tel" name="sms" Value="{{configuracion['sms']}}">
                     
                     <button type="submit" class="btn-save">Guardar</button>
                 </form>
@@ -129,16 +127,17 @@
 
             <section class="settings-section">
                 <h2>Opciones de Reabastecimiento</h2>
-                <form>
+                <form action="/guardar/reabastecimiento" method="post">
                     <label for="auto-replenish">Reabastecimiento Automático</label>
-                    <select id="auto-replenish">
-                        <option value="enabled">Habilitado</option>
-                        <option value="disabled">Deshabilitado</option>
+                    <select id="auto-replenish" name="reabastecimiento">
+                        <option value="enabled" {% if configuracion['reabastecimiento'] == 'enabled' %}selected{% endif %}>Habilitado</option>
+                        <option value="disabled" {% if configuracion['reabastecimiento'] == 'disabled' %}selected{% endif %}>Deshabilitado</option>
                     </select>
                     
                     <button type="submit" class="btn-save">Guardar</button>
                 </form>
             </section>
+
             <section class="settings-section">
                 <h2>Opciones de Organizacion</h2>
                 {%if status['idOrga'] == ""%}

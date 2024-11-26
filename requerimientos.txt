@@ -7,3 +7,4 @@ mysql-connector
 flask_sqlalchemy
 flask_mail
 requests
+reportlab

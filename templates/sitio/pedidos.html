@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Gestion de Inventario - Pedidos</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+        crossorigin="anonymous"
+    />
+    <style>
+        body {
+            background: linear-gradient(to right, #1d4350, #a43931);
+            font-family: 'Poppins', sans-serif;
+            color: #ffffff;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+            background-color: #343a40;
+            color: #ffffff;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        .header-title {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+            color: #f9b208;
+        }
+
+        .btn-report {
+            background-color: #f9b208;
+            color: #ffffff;
+            margin-top: 20px;
+            border: none;
+        }
+
+        .btn-report:hover {
+            background-color: #e57a00;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="p-3 text-bg-dark">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="/inventario" class="nav-link px-2 text-white">Inventario</a></li>
+                    <li><a href="/usuario" class="nav-link px-2 text-white">Organización</a></li>
+                    <li><a href="/proveedores" class="nav-link px-2 text-white">Proveedores</a></li>
+                    <li><a href="/pedidos" class="nav-link px-2 text-white">Pedidos</a></li>
+                    <li><a href="/reporte" class="nav-link px-2 text-white">Reporte</a></li>
+                    <li><a href="/configuracion" class="nav-link px-2 text-white">Configuración</a></li>
+                </ul>
+
+                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+                    <input type="search" class="form-control form-control-dark text-bg-dark" placeholder="Buscar..." aria-label="Search">
+                </form>
+
+                <div class="text-end">
+                    <a href="/sitio/cerrarSesion" class="btn btn-warning">Cerrar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 class="header-title">Pedidos Realizados</h1>
+        <div class="row g-4">
+            {% for pedido in pedidos %}
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Pedido ID: {{ pedido['id'] }}</h5>
+                        <p class="card-text"><strong>Fecha:</strong> {{ pedido['fecha'] }}</p>
+                        <p class="card-text"><strong>Hora:</strong> {{ pedido['hora'] }}</p>
+                        <p class="card-text"><strong>Total:</strong> ${{ pedido['total'] }}</p>
+                        <p class="card-text"><strong>Organización:</strong> {{ pedido['idOrga'] }}</p>
+                        <p class="card-text"><strong>Productos:</strong></p>
+                        <ul>
+                            {% for producto in pedido['productos'] %}
+                            <li>{{ producto['nombre'] }} ({{ producto['cantidad'] }} unidades)</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center">
+            <a href="{{ url_for('descargar_pdf') }}" class="btn btn-report">Descargar Reporte en PDF</a>
+        </div>
+    </div>
+</body>
+</html>

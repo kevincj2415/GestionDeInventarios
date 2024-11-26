@@ -1,0 +1,51 @@
+{% include 'sitio/head.html' %}
+    <div class="container py-5">
+        <h1 class="text-center">Estadísticas de Pedidos</h1>
+        <h3 class="text-center text-muted">Organización: {{ status['idOrga'] }}</h3>
+
+        <div class="mt-5">
+            <h3>Pedidos Realizados</h3>
+            <p>Total: {{ estadisticas['pedidos_realizados'] }}</p>
+
+            <h3>Ingresos Totales</h3>
+            <p>${{ estadisticas['ingresos_totales'] | round(2) }}</p>
+
+            <h3>Productos Más Vendidos</h3>
+            <canvas id="productosChart"></canvas>
+
+            <div class="mt-4">
+                <a href="/descargar-pedidos-pdf" class="btn btn-primary">Descargar PDF</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('productosChart').getContext('2d');
+        const productos = {{ estadisticas['productos_mas_vendidos'] | tojson }};
+        const nombres = Object.keys(productos);
+        const cantidades = Object.values(productos);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: nombres,
+                datasets: [{
+                    label: 'Cantidad Vendida',
+                    data: cantidades,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
